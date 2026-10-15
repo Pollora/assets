@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Brain\Monkey\Functions;
 use Pollora\Asset\Application\Services\AssetManager;
 use Pollora\Asset\Application\Services\AssetRetrievalService;
-use Pollora\Asset\Assets;
+use Pollora\Asset\Asset;
 use Pollora\Asset\Domain\Contracts\RuntimeContext;
 use Pollora\Asset\Domain\Services\AssetContainerManager;
 use Pollora\Asset\Infrastructure\Repositories\InMemoryAssetRepository;
@@ -25,7 +25,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    Assets::reset();
+    Asset::reset();
 
     foreach ([$this->root.'/build/manifest.json', $this->root.'/hot'] as $file) {
         if (is_file($file)) {
@@ -39,51 +39,62 @@ afterEach(function (): void {
     }
 });
 
-describe('Assets for a classic theme or a plugin', function (): void {
-    it('adds the container of a theme inside the theme: its build, its hot file, its entry points', function (): void {
-        $container = Assets::theme($this->root, 'https://site.test/content/themes/x/')->getContainer('theme');
+describe('Asset, the facade of a theme or a plugin outside a Pollora project', function (): void {
+    beforeEach(function (): void {
+        $this->theme = fn (): array => [
+            'hot_file' => $this->root.'/hot',
+            'build_directory' => 'build',
+            'manifest_path' => 'manifest.json',
+            'base_path' => 'resources/assets/',
+            'public_path' => $this->root,
+            'public_url' => 'https://site.test/content/themes/x',
+        ];
+    });
+
+    it('declares a container with the keys of a Pollora container, and gives it back', function (): void {
+        Asset::addContainer('theme', ($this->theme)());
+
+        $container = Asset::getContainer('theme');
 
         expect($container->getHotFile())->toBe($this->root.'/hot')
             ->and($container->getBuildDirectory())->toBe('build')
+            ->and($container->getManifestPath())->toBe('manifest.json')
+            ->and($container->getBasePath())->toBe('resources/assets/')
             ->and($container->getPublicPath())->toBe($this->root)
             ->and($container->getPublicUrl())->toBe('https://site.test/content/themes/x')
-            ->and($container->getManifestPath())->toBe('manifest.json')
-            ->and($container->getBasePath())->toBe('resources/assets/');
+            ->and(array_keys(Asset::containers()))->toBe(['theme'])
+            ->and(Asset::getContainer('plugin.acme'))->toBeNull();
     });
 
-    it('adds the container of a plugin under its slug, and lets the layout be changed', function (): void {
-        $manager = Assets::plugin('acme', '/srv/plugins/acme', 'https://site.test/plugins/acme', ['build' => 'dist', 'hot' => '.hot', 'base_path' => 'assets/']);
+    it('forwards the calls of the framework facade to one asset manager', function (): void {
+        Asset::addContainer('theme', ($this->theme)());
+        Asset::setDefaultContainer('theme');
 
-        $container = $manager->getContainer('plugin.acme');
-
-        expect($container->getHotFile())->toBe('/srv/plugins/acme/.hot')
-            ->and($container->getBuildDirectory())->toBe('dist')
-            ->and($container->getPublicPath())->toBe('/srv/plugins/acme')
-            ->and($container->getPublicUrl())->toBe('https://site.test/plugins/acme')
-            ->and($container->getBasePath())->toBe('assets/')
-            ->and($manager)->toBe(Assets::manager());
+        expect(Asset::manager())->toBe(Asset::manager())
+            ->and(Asset::getDefaultContainer()->getName())->toBe('theme')
+            ->and(Asset::add('my-theme/app', 'app.js'))->toBeInstanceOf(AssetEnqueuer::class);
     });
 
-    it('keeps one manager, and starts again after a reset', function (): void {
-        $first = Assets::manager();
+    it('starts again after a reset', function (): void {
+        Asset::addContainer('theme', ($this->theme)());
+        $first = Asset::manager();
 
-        expect(Assets::manager())->toBe($first);
+        Asset::reset();
 
-        Assets::reset();
-
-        expect(Assets::manager())->not->toBe($first);
+        expect(Asset::manager())->not->toBe($first)
+            ->and(Asset::containers())->toBe([]);
     });
 
     it('tells the admin about a missing build', function (): void {
         Brain\Monkey\Actions\expectAdded('admin_notices')->once();
 
-        Assets::manager();
+        Asset::manager();
     });
 
     it('resolves the URL of a theme file for AssetFile, from the build or from the dev server', function (): void {
-        Assets::theme($this->root, 'https://site.test/content/themes/x');
+        Asset::addContainer('theme', ($this->theme)());
 
-        expect((string) (new AssetFile('images/logo.svg'))->from('theme'))->toBe('https://site.test/content/themes/x/build/assets/logo-DDD.svg')
+        expect((string) Asset::url('images/logo.svg')->from('theme'))->toBe('https://site.test/content/themes/x/build/assets/logo-DDD.svg')
             ->and((string) (new AssetFile('images/logo.svg'))->from('plugin.unknown'))->toBe('')
             ->and((string) (new AssetFile('images/nothing.svg'))->from('theme'))->toBe('');
 
@@ -128,7 +139,7 @@ describe('an enqueued asset, from the container of a theme to WordPress', functi
                 }
             }),
         );
-        // The container Assets::theme() adds
+        // The container of a theme, as a Pollora project declares it
         $this->manager->addContainer('theme', [
             'hot_file' => $this->root.'/hot',
             'build_directory' => 'build',

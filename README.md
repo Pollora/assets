@@ -14,21 +14,13 @@ Requires PHP 8.3+ and WordPress. It builds on [`pollora/hook`](https://github.co
 
 ## In a theme or a plugin, with or without Bedrock
 
+`Asset` is the framework's `Asset` facade for a project with no Laravel: the same calls, forwarded to the same asset manager, wired to WordPress. In a Pollora project the framework declares the containers of the theme, the plugins and the modules; here you declare yours once.
+
 ```php
 // functions.php of a classic theme, or web/app/themes/my-theme/functions.php in Bedrock
-use Pollora\Asset\Assets;
+use Pollora\Asset\Asset;
 
-Assets::theme(get_stylesheet_directory(), get_stylesheet_directory_uri())
-    ->add('my-theme/app', 'app.js')
-    ->container('theme')
-    ->useVite()
-    ->toFrontend();
-```
-
-A container is declared the way it is in a Pollora project, with `addContainer()`: `Assets::theme()` is only a shorthand for it.
-
-```php
-Assets::manager()->addContainer('theme', [
+Asset::addContainer('theme', [
     'hot_file' => get_stylesheet_directory().'/hot',       // exists while the dev server runs
     'build_directory' => 'build',                          // where Vite built, relative to the public directory
     'manifest_path' => 'manifest.json',                    // in the build directory
@@ -36,11 +28,11 @@ Assets::manager()->addContainer('theme', [
     'public_path' => get_stylesheet_directory(),           // the public directory, on disk
     'public_url' => get_stylesheet_directory_uri(),        // and as a URL
 ]);
+
+Asset::add('my-theme/app', 'app.js')->container('theme')->useVite()->toFrontend();
 ```
 
-The first four are the keys the framework sets for the theme, the plugins and the modules of a Pollora project. The last two are the only addition: Laravel has one public directory for the whole application (`public_path()`, `asset()`), where a classic theme or a plugin is its own root and gives its own.
-
-`Assets::theme()` adds the container of the theme (named `theme`) and returns the asset manager. `Assets::plugin('acme', plugin_dir_path(__FILE__), plugin_dir_url(__FILE__))` adds the container of a plugin, named `plugin.acme`; `Assets::container($name, $directory, $url)` any other.
+The first four keys are the ones the framework sets for a theme, a plugin or a module. The last two are the only addition: Laravel has one public directory for the whole application (`public_path()`, `asset()`), where a classic theme or a plugin is its own root and gives its own. A plugin does the same under its own name, `plugin.acme`.
 
 A container is a folder with a Vite build in it:
 
@@ -64,11 +56,7 @@ export default defineConfig({
 });
 ```
 
-`npm run build` writes `build/`; `npm run dev` starts the dev server and writes `hot`. `add('my-theme/app', 'app.js')` names the entry `resources/assets/app.js`: the files are looked up under the base path of the container, `resources/assets/` by default. The layout can be changed, on both sides:
-
-```php
-Assets::theme($dir, $url, ['build' => 'dist', 'hot' => '.hot', 'base_path' => 'assets/']);
-```
+`npm run build` writes `build/`; `npm run dev` starts the dev server and writes `hot`. `add('my-theme/app', 'app.js')` names the entry `resources/assets/app.js`: files are looked up under the `base_path` of the container.
 
 ## What it does
 
@@ -81,12 +69,10 @@ Assets::theme($dir, $url, ['build' => 'dist', 'hot' => '.hot', 'base_path' => 'a
 ## Enqueuing
 
 ```php
-$assets = Assets::theme($dir, $url);
-
-$assets->add('my-theme/app', 'app.js')->container('theme')->useVite()->toFrontend();
-$assets->add('my-theme/editor', 'editor.css')->container('theme')->useVite()->toEditor();
-$assets->add('my-theme/admin', 'admin.js')->container('theme')->useVite()->toBackend()->dependencies(['wp-api-fetch']);
-$assets->add('my-theme/login', 'login.css')->container('theme')->useVite()->toLoginScreen();
+Asset::add('my-theme/app', 'app.js')->container('theme')->useVite()->toFrontend();
+Asset::add('my-theme/editor', 'editor.css')->container('theme')->useVite()->toEditor();
+Asset::add('my-theme/admin', 'admin.js')->container('theme')->useVite()->toBackend()->dependencies(['wp-api-fetch']);
+Asset::add('my-theme/login', 'login.css')->container('theme')->useVite()->toLoginScreen();
 ```
 
 | | |
@@ -114,7 +100,7 @@ The URL of a file the manifest lists: the hashed built file, or the dev server's
 
 ## Without a build
 
-Where there is neither a `hot` file nor a manifest (the build was never run, or failed), the container resolves nothing: no URL, no fatal error. The missing build is recorded, written once to the log if you gave one (`Assets::useLogger($psr3Logger)`), and named in wp-admin with the command to run.
+Where there is neither a `hot` file nor a manifest (the build was never run, or failed), the container resolves nothing: no URL, no fatal error. The missing build is recorded, written once to the log if you gave one (`Asset::useLogger($psr3Logger)`), and named in wp-admin with the command to run.
 
 ## In a Pollora project
 
