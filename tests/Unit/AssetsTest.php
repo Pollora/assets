@@ -44,8 +44,9 @@ describe('Assets for a classic theme or a plugin', function (): void {
         $container = Assets::theme($this->root, 'https://site.test/content/themes/x/')->getContainer('theme');
 
         expect($container->getHotFile())->toBe($this->root.'/hot')
-            ->and($container->getBuildPath())->toBe($this->root.'/build')
-            ->and($container->getBuildUrl())->toBe('https://site.test/content/themes/x/build')
+            ->and($container->getBuildDirectory())->toBe('build')
+            ->and($container->getPublicPath())->toBe($this->root)
+            ->and($container->getPublicUrl())->toBe('https://site.test/content/themes/x')
             ->and($container->getManifestPath())->toBe('manifest.json')
             ->and($container->getBasePath())->toBe('resources/assets/');
     });
@@ -56,8 +57,9 @@ describe('Assets for a classic theme or a plugin', function (): void {
         $container = $manager->getContainer('plugin.acme');
 
         expect($container->getHotFile())->toBe('/srv/plugins/acme/.hot')
-            ->and($container->getBuildPath())->toBe('/srv/plugins/acme/dist')
-            ->and($container->getBuildUrl())->toBe('https://site.test/plugins/acme/dist')
+            ->and($container->getBuildDirectory())->toBe('dist')
+            ->and($container->getPublicPath())->toBe('/srv/plugins/acme')
+            ->and($container->getPublicUrl())->toBe('https://site.test/plugins/acme')
             ->and($container->getBasePath())->toBe('assets/')
             ->and($manager)->toBe(Assets::manager());
     });
@@ -129,8 +131,9 @@ describe('an enqueued asset, from the container of a theme to WordPress', functi
         // The container Assets::theme() adds
         $this->manager->addContainer('theme', [
             'hot_file' => $this->root.'/hot',
-            'build_path' => $this->root.'/build',
-            'build_url' => 'https://site.test/content/themes/x/build',
+            'build_directory' => 'build',
+            'public_path' => $this->root,
+            'public_url' => 'https://site.test/content/themes/x',
             'base_path' => 'resources/assets/',
         ]);
 

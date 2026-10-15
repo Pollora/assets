@@ -90,10 +90,11 @@ final class Assets
         $manager->addContainer($name, [
             'hot_file' => $directory.'/'.($options['hot'] ?? 'hot'),
             'build_directory' => $build,
-            'build_path' => $directory.'/'.$build,
-            'build_url' => rtrim($url, '/').'/'.$build,
             'manifest_path' => $options['manifest'] ?? 'manifest.json',
             'base_path' => $options['base_path'] ?? 'resources/assets/',
+            // Laravel has one public directory for every container; a theme or a plugin is its own
+            'public_path' => $directory,
+            'public_url' => rtrim($url, '/'),
         ]);
 
         return $manager;

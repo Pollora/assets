@@ -18,8 +18,9 @@ use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
  * the URL of the build directory the container names, which a classic theme or
  * a Bedrock site gets from WordPress (`get_theme_file_uri()`, `plugins_url()`).
  *
- * The container gives it `build_path` and `build_url`: the build directory on
- * disk and where it is served from.
+ * The container says what its `build_directory` is relative to, on disk and as
+ * a URL: `public_path` and `public_url`, the pair Laravel gets from `public_path()`
+ * and `asset()`.
  */
 final class NativeViteManager implements ViteManagerInterface
 {
@@ -35,8 +36,8 @@ final class NativeViteManager implements ViteManagerInterface
         private readonly AssetContainer $container,
         private readonly ?MissingBuilds $missingBuilds = null,
     ) {
-        if ($container->getBuildPath() === null || $container->getBuildUrl() === null) {
-            throw new AssetException(sprintf("The asset container '%s' has no build_path and build_url: the native Vite resolver needs both.", $container->getName()));
+        if ($container->getPublicPath() === null || $container->getPublicUrl() === null) {
+            throw new AssetException(sprintf("The asset container '%s' has no public_path and public_url: the native Vite resolver needs both.", $container->getName()));
         }
     }
 
@@ -161,12 +162,17 @@ final class NativeViteManager implements ViteManagerInterface
 
     private function builtUrl(string $file): string
     {
-        return (string) $this->container->getBuildUrl().'/'.ltrim($file, '/');
+        return $this->container->getPublicUrl().'/'.$this->buildDirectory().'/'.ltrim($file, '/');
+    }
+
+    private function buildDirectory(): string
+    {
+        return trim($this->container->getBuildDirectory(), '/');
     }
 
     private function manifestFile(): string
     {
-        return (string) $this->container->getBuildPath().'/'.$this->container->getManifestPath();
+        return $this->container->getPublicPath().'/'.$this->buildDirectory().'/'.$this->container->getManifestPath();
     }
 
     /**

@@ -33,8 +33,9 @@ beforeEach(function (): void {
     $this->container = function (string $name, string $kind, array $overrides = []): AssetContainer {
         return new AssetContainer($name, [
             'hot_file' => $this->root.'/'.$kind.'/hot',
-            'build_path' => $this->root.'/'.$kind.'/build',
-            'build_url' => 'https://site.test/content/'.$kind.'s/x/build',
+            'build_directory' => 'build',
+            'public_path' => $this->root.'/'.$kind,
+            'public_url' => 'https://site.test/content/'.$kind.'s/x',
             'manifest_path' => 'manifest.json',
             'base_path' => 'resources/assets/',
             ...$overrides,
@@ -112,8 +113,9 @@ describe('NativeViteManager built for production', function (): void {
 
     it('does not trust a trailing slash on the build URL or the build path', function (): void {
         $manager = new NativeViteManager(($this->container)('theme', 'theme', [
-            'build_url' => 'https://site.test/content/themes/x/build/',
-            'build_path' => $this->root.'/theme/build/',
+            'public_url' => 'https://site.test/content/themes/x/',
+            'public_path' => $this->root.'/theme/',
+            'build_directory' => '/build/',
         ]));
 
         expect($manager->asset('images/logo.svg'))->toBe('https://site.test/content/themes/x/build/assets/logo-DDD.svg');
@@ -174,10 +176,10 @@ describe('NativeViteManager without a build', function (): void {
 });
 
 describe('NativeViteManager and its container', function (): void {
-    it('needs to know where the build is and where it is served from', function (): void {
-        expect(fn () => new NativeViteManager(new AssetContainer('theme', ['build_path' => '/x'])))
-            ->toThrow(AssetException::class, "The asset container 'theme' has no build_path and build_url")
-            ->and(fn () => new NativeViteManager(new AssetContainer('theme', ['build_url' => 'https://x.test/build'])))
+    it('needs the directory its build directory is relative to, and its URL', function (): void {
+        expect(fn () => new NativeViteManager(new AssetContainer('theme', ['public_path' => '/x'])))
+            ->toThrow(AssetException::class, "The asset container 'theme' has no public_path and public_url")
+            ->and(fn () => new NativeViteManager(new AssetContainer('theme', ['public_url' => 'https://x.test'])))
             ->toThrow(AssetException::class);
     });
 

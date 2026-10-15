@@ -13,4 +13,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Three contracts for what binds them to an environment: `ViteManagerFactory`, `RuntimeContext` and `PublicPath`. The framework implements them for Laravel.
 - A native Vite resolver, `NativeViteManager`, for WordPress without Laravel: the URLs of a manifest or of the dev server in a hot file, the same as the framework's resolver answers for the same files.
 - `Assets::theme()`, `Assets::plugin()` and `Assets::container()`: the containers of a classic theme, a plugin or a Bedrock site, with their build and hot file inside the folder. Built by `@pollora/vite-config` with `layout: 'standalone'`.
-- `AssetContainer` can name where its build is on disk and where it is served from (`build_path`, `build_url`).
+- `AssetContainer` can name the directory its `build_directory` is relative to, and that directory's URL (`public_path`, `public_url`): the pair Laravel gets from `public_path()` and `asset()`, which a classic theme or a plugin, being its own root, gives itself.

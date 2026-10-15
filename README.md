@@ -25,6 +25,21 @@ Assets::theme(get_stylesheet_directory(), get_stylesheet_directory_uri())
     ->toFrontend();
 ```
 
+A container is declared the way it is in a Pollora project, with `addContainer()`: `Assets::theme()` is only a shorthand for it.
+
+```php
+Assets::manager()->addContainer('theme', [
+    'hot_file' => get_stylesheet_directory().'/hot',       // exists while the dev server runs
+    'build_directory' => 'build',                          // where Vite built, relative to the public directory
+    'manifest_path' => 'manifest.json',                    // in the build directory
+    'base_path' => 'resources/assets/',                    // what add('…', 'app.js') is relative to
+    'public_path' => get_stylesheet_directory(),           // the public directory, on disk
+    'public_url' => get_stylesheet_directory_uri(),        // and as a URL
+]);
+```
+
+The first four are the keys the framework sets for the theme, the plugins and the modules of a Pollora project. The last two are the only addition: Laravel has one public directory for the whole application (`public_path()`, `asset()`), where a classic theme or a plugin is its own root and gives its own.
+
 `Assets::theme()` adds the container of the theme (named `theme`) and returns the asset manager. `Assets::plugin('acme', plugin_dir_path(__FILE__), plugin_dir_url(__FILE__))` adds the container of a plugin, named `plugin.acme`; `Assets::container($name, $directory, $url)` any other.
 
 A container is a folder with a Vite build in it:
@@ -109,7 +124,7 @@ What binds the package to an environment sits behind three small contracts, whic
 
 | Contract | Does | Here (WordPress) |
 | --- | --- | --- |
-| `ViteManagerFactory` | Resolves a container's files from its manifest and hot file | `NativeViteManagerFactory`, from the `build_path` and `build_url` of the container |
+| `ViteManagerFactory` | Resolves a container's files from its manifest and hot file | `NativeViteManagerFactory`, from the `public_path` and `public_url` of the container |
 | `RuntimeContext` | Tells the command line, where nothing is enqueued | `WordPressRuntimeContext` |
 | `PublicPath` | Where a container's hot file goes when it names none | not needed: a container names its own |
 

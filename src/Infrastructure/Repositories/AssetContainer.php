@@ -39,14 +39,14 @@ class AssetContainer
     protected string $manifestPath;
 
     /**
-     * Where the build is on disk, when it is not under a public directory shared by every container.
+     * The directory `build_directory` is relative to, when it is the container's own and not one shared by all.
      */
-    protected ?string $buildPath;
+    protected ?string $publicPath;
 
     /**
-     * Where the build is served from, with the same condition.
+     * The URL of that directory.
      */
-    protected ?string $buildUrl;
+    protected ?string $publicUrl;
 
     /**
      * Creates a new asset container instance.
@@ -60,24 +60,27 @@ class AssetContainer
         $this->buildDirectory = $config['build_directory'] ?? 'build/'.$this->name;
         $this->manifestPath = $config['manifest_path'] ?? 'manifest.json';
         $this->basePath = $config['base_path'] ?? '';
-        $this->buildPath = isset($config['build_path']) ? rtrim((string) $config['build_path'], '/') : null;
-        $this->buildUrl = isset($config['build_url']) ? rtrim((string) $config['build_url'], '/') : null;
+        $this->publicPath = isset($config['public_path']) ? rtrim((string) $config['public_path'], '/') : null;
+        $this->publicUrl = isset($config['public_url']) ? rtrim((string) $config['public_url'], '/') : null;
     }
 
     /**
-     * The absolute directory of the build, null in a layout where the build directory is relative to a shared public directory.
+     * The directory the build directory is relative to, when the container has its own.
+     *
+     * A Pollora application has one public directory for every container and Laravel resolves the build in it.
+     * A classic theme or a plugin is its own root: it says where that is, and the URL it is served from.
      */
-    public function getBuildPath(): ?string
+    public function getPublicPath(): ?string
     {
-        return $this->buildPath;
+        return $this->publicPath;
     }
 
     /**
-     * The URL of the build directory, null in a layout where it is the application that builds URLs.
+     * The URL of the public directory of the container, when it has its own.
      */
-    public function getBuildUrl(): ?string
+    public function getPublicUrl(): ?string
     {
-        return $this->buildUrl;
+        return $this->publicUrl;
     }
 
     /**
