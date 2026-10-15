@@ -16,8 +16,9 @@ final readonly class MissingBuildNotice
 {
     /**
      * @param  string  $root  The project root, taken off the manifest paths the notice shows; empty to show them whole
+     * @param  string|null  $diagnosis  A command that names the folders to build (`php artisan pollora:doctor`); the notice says nothing of it when null
      */
-    public function __construct(private MissingBuilds $missingBuilds, private string $root = '') {}
+    public function __construct(private MissingBuilds $missingBuilds, private string $root = '', private ?string $diagnosis = null) {}
 
     public function render(): void
     {
@@ -29,7 +30,7 @@ final readonly class MissingBuildNotice
 
         $ddev = getenv('IS_DDEV_PROJECT') === 'true';
         $build = $ddev ? 'ddev npm install && ddev npm run build' : 'npm install && npm run build';
-        $doctor = ($ddev ? 'ddev exec ' : '').'php artisan pollora:doctor';
+        $doctor = $this->diagnosis === null ? null : ($ddev ? 'ddev exec ' : '').$this->diagnosis;
 
         // A theme's blocks share its build: one line per manifest
         $containersByManifest = [];
@@ -47,15 +48,20 @@ final readonly class MissingBuildNotice
             );
         }
 
+        $hint = $doctor === null ? '' : sprintf(
+            '<p>%s<br><code>%s</code></p>',
+            esc_html__('Not sure which folder? The builds check names it:', 'pollora'),
+            esc_html($doctor)
+        );
+
         printf(
-            '<div class="notice notice-warning"><p><strong>%s</strong></p><p>%s</p><ul>%s</ul><p>%s<br><code>%s</code></p><p>%s<br><code>%s</code></p></div>',
+            '<div class="notice notice-warning"><p><strong>%s</strong></p><p>%s</p><ul>%s</ul><p>%s<br><code>%s</code></p>%s</div>',
             esc_html__('Pollora: assets not built', 'pollora'),
             esc_html__('These Vite builds are missing, so their scripts and styles are left out: the site renders unstyled and blocks have no editor scripts.', 'pollora'),
             $items,
             esc_html__('Build them from the folder of the theme, plugin or module:', 'pollora'),
             esc_html($build),
-            esc_html__('Not sure which folder? The builds check names it:', 'pollora'),
-            esc_html($doctor)
+            $hint
         );
     }
 

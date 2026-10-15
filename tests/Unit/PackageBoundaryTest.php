@@ -16,6 +16,7 @@ arch('assets uses only what it declares')
     ->toOnlyUse([
         'Pollora\Asset',
         'Pollora\Hook\Domain\Contract',
+        'Pollora\Hook\Adapter\Out\WordPress',
         'Psr\Log',
         'Closure',
         'Stringable',

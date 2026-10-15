@@ -39,6 +39,16 @@ class AssetContainer
     protected string $manifestPath;
 
     /**
+     * Where the build is on disk, when it is not under a public directory shared by every container.
+     */
+    protected ?string $buildPath;
+
+    /**
+     * Where the build is served from, with the same condition.
+     */
+    protected ?string $buildUrl;
+
+    /**
      * Creates a new asset container instance.
      *
      * @param  string  $name  The unique identifier for this container
@@ -50,6 +60,24 @@ class AssetContainer
         $this->buildDirectory = $config['build_directory'] ?? 'build/'.$this->name;
         $this->manifestPath = $config['manifest_path'] ?? 'manifest.json';
         $this->basePath = $config['base_path'] ?? '';
+        $this->buildPath = isset($config['build_path']) ? rtrim((string) $config['build_path'], '/') : null;
+        $this->buildUrl = isset($config['build_url']) ? rtrim((string) $config['build_url'], '/') : null;
+    }
+
+    /**
+     * The absolute directory of the build, null in a layout where the build directory is relative to a shared public directory.
+     */
+    public function getBuildPath(): ?string
+    {
+        return $this->buildPath;
+    }
+
+    /**
+     * The URL of the build directory, null in a layout where it is the application that builds URLs.
+     */
+    public function getBuildUrl(): ?string
+    {
+        return $this->buildUrl;
     }
 
     /**
