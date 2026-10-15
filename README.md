@@ -1,4 +1,15 @@
-# Pollora Assets
+<p align="center">
+  <a href="https://pollora.dev">
+    <img src="https://raw.githubusercontent.com/Pollora/.github/main/brand/banners/assets.png" width="100%" alt="Pollora Assets: scripts, styles and Vite builds for WordPress">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://packagist.org/packages/pollora/assets"><img src="https://img.shields.io/packagist/v/pollora/assets" alt="Latest version"></a>
+  <a href="https://packagist.org/packages/pollora/assets"><img src="https://img.shields.io/packagist/dt/pollora/assets" alt="Total downloads"></a>
+  <a href="https://github.com/Pollora/assets/actions/workflows/tests.yml"><img src="https://github.com/Pollora/assets/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Pollora/assets" alt="License"></a>
+</p>
 
 Scripts, styles and Vite builds for WordPress: enqueue an asset with a fluent API, and let it resolve its URL from the Vite manifest or the dev server, per theme, plugin or module. The same code serves a built file in production and the dev server while Vite runs, with hot reload.
 
