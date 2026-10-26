@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- An unknown asset container, and `useVite()` called before a container is chosen, throw the named `AssetContainerNotFound` exception instead of a bare `\RuntimeException`. It extends `\RuntimeException` and the messages are unchanged
+
 ## [0.1.0] - 2026-10-15
 
 ### Added

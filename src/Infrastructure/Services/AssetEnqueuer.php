@@ -8,6 +8,7 @@ use Pollora\Asset\Application\Services\AssetManager;
 use Pollora\Asset\Domain\Contracts\RuntimeContext;
 use Pollora\Asset\Domain\Contracts\ViteManagerFactory;
 use Pollora\Asset\Domain\Contracts\ViteManagerInterface;
+use Pollora\Asset\Domain\Exceptions\AssetContainerNotFound;
 use Pollora\Asset\Domain\Exceptions\AssetException;
 use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
 use Pollora\Hook\Domain\Contract\Action as HookAction;
@@ -198,7 +199,7 @@ class AssetEnqueuer
         $container = $this->assetManager->getContainer($containerName);
 
         if (! $container instanceof AssetContainer) {
-            throw new \RuntimeException(sprintf("Asset container '%s' not found. Make sure you have added it via AssetManager::addContainer().", $containerName));
+            throw AssetContainerNotFound::named($containerName);
         }
 
         $this->container = $container;
@@ -229,7 +230,7 @@ class AssetEnqueuer
         }
 
         if (! $this->container instanceof AssetContainer) {
-            throw new \RuntimeException("No asset container defined before useVite(). Use ->container('theme') before ->useVite().");
+            throw AssetContainerNotFound::beforeUseVite();
         }
 
         $this->useVite = true;
