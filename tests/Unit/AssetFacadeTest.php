@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Brain\Monkey\Functions;
+use Pollora\Asset\Application\Services\AssetFile;
 use Pollora\Asset\Application\Services\AssetManager;
 use Pollora\Asset\Application\Services\AssetRetrievalService;
 use Pollora\Asset\Asset;
@@ -10,7 +11,6 @@ use Pollora\Asset\Domain\Contracts\RuntimeContext;
 use Pollora\Asset\Domain\Services\AssetContainerManager;
 use Pollora\Asset\Infrastructure\Repositories\InMemoryAssetRepository;
 use Pollora\Asset\Infrastructure\Services\AssetEnqueuer;
-use Pollora\Asset\Infrastructure\Services\AssetFile;
 use Pollora\Asset\Infrastructure\WordPress\NativeViteManagerFactory;
 use Pollora\Hook\Domain\Contract\Action as HookAction;
 use Pollora\Hook\Domain\Contract\Filter as HookFilter;

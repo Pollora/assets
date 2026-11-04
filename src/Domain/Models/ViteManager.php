@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Pollora\Asset\Domain\Models;
 
 use Pollora\Asset\Domain\Contracts\ViteManagerInterface;
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
 
 /**
  * Domain-only (mock or stub) implementation of ViteManagerInterface.

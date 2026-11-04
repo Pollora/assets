@@ -9,7 +9,7 @@ use RuntimeException;
 /**
  * Thrown when an asset is addressed to a container nobody registered.
  */
-final class AssetContainerNotFound extends RuntimeException
+final class AssetContainerNotFoundException extends RuntimeException
 {
     /**
      * @param  string  $containerName  The name that matches no container

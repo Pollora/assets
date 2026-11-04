@@ -2,7 +2,8 @@
 
 declare(strict_types=1);
 
-use Pollora\Asset\Infrastructure\Services\AssetFile;
+use Pollora\Asset\Application\Services\AssetFile;
+use Pollora\Asset\Domain\Models\AssetContainer;
 
 afterEach(function (): void {
     AssetFile::resolveUsing(null);
@@ -26,4 +27,21 @@ describe('AssetFile', function (): void {
 
         expect((string) new AssetFile('x.svg'))->toBe('');
     });
+});
+
+it('keeps the former class names of the moved classes working', function (): void {
+    $file = new AssetFile('app.js');
+    $container = new AssetContainer('theme');
+
+    expect($file)->toBeInstanceOf(Pollora\Asset\Infrastructure\Services\AssetFile::class)
+        ->and($container)->toBeInstanceOf(Pollora\Asset\Infrastructure\Repositories\AssetContainer::class)
+        ->and(new Pollora\Asset\Infrastructure\Repositories\AssetContainer('plugin'))->toBeInstanceOf(AssetContainer::class);
+});
+
+it('autoloads the former class names from their own files', function (): void {
+    require_once __DIR__.'/../../src/Infrastructure/Services/AssetFile.php';
+    require_once __DIR__.'/../../src/Infrastructure/Repositories/AssetContainer.php';
+
+    expect(class_exists(Pollora\Asset\Infrastructure\Services\AssetFile::class))->toBeTrue()
+        ->and(class_exists(Pollora\Asset\Infrastructure\Repositories\AssetContainer::class))->toBeTrue();
 });

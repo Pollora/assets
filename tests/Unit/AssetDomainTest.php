@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Pollora\Asset\Domain\Models\Asset;
+use Pollora\Asset\Domain\Models\AssetContainer;
 use Pollora\Asset\Domain\Models\AssetFile;
 use Pollora\Asset\Domain\Models\ViteManager;
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
 
 describe('Asset domain model', function (): void {
     it('can be instantiated with name, path, and attributes', function (): void {

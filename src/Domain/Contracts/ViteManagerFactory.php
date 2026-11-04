@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pollora\Asset\Domain\Contracts;
 
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
+use Pollora\Asset\Domain\Models\AssetContainer;
 
 /**
  * Builds the Vite resolver of an asset container.

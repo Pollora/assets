@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Pollora\Asset\Infrastructure\Services;
 
 use Pollora\Asset\Application\Services\AssetManager;
+use Pollora\Asset\Domain\Contracts\AssetEnqueuerInterface;
 use Pollora\Asset\Domain\Contracts\RuntimeContext;
 use Pollora\Asset\Domain\Contracts\ViteManagerFactory;
 use Pollora\Asset\Domain\Contracts\ViteManagerInterface;
-use Pollora\Asset\Domain\Exceptions\AssetContainerNotFound;
+use Pollora\Asset\Domain\Exceptions\AssetContainerNotFoundException;
 use Pollora\Asset\Domain\Exceptions\AssetException;
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
+use Pollora\Asset\Domain\Models\AssetContainer;
 use Pollora\Hook\Domain\Contract\Action as HookAction;
 use Pollora\Hook\Domain\Contract\Filter as HookFilter;
 use Psr\Log\LoggerInterface;
@@ -23,7 +24,7 @@ use Psr\Log\NullLogger;
  * WordPress enqueuing and Vite.js integration. It handles various asset loading scenarios
  * including dependencies, versioning, and conditional loading.
  */
-class AssetEnqueuer
+class AssetEnqueuer implements AssetEnqueuerInterface
 {
     /**
      * Hooks on whose pages WordPress prints script modules, after its import map.
@@ -199,7 +200,7 @@ class AssetEnqueuer
         $container = $this->assetManager->getContainer($containerName);
 
         if (! $container instanceof AssetContainer) {
-            throw AssetContainerNotFound::named($containerName);
+            throw AssetContainerNotFoundException::named($containerName);
         }
 
         $this->container = $container;
@@ -230,7 +231,7 @@ class AssetEnqueuer
         }
 
         if (! $this->container instanceof AssetContainer) {
-            throw AssetContainerNotFound::beforeUseVite();
+            throw AssetContainerNotFoundException::beforeUseVite();
         }
 
         $this->useVite = true;

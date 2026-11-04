@@ -7,7 +7,7 @@ namespace Pollora\Asset\Infrastructure\WordPress;
 use Pollora\Asset\Application\Services\MissingBuilds;
 use Pollora\Asset\Domain\Contracts\ViteManagerInterface;
 use Pollora\Asset\Domain\Exceptions\AssetException;
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
+use Pollora\Asset\Domain\Models\AssetContainer;
 
 /**
  * Resolves the assets of a container from its Vite manifest and hot file, with no framework.
