@@ -102,7 +102,7 @@ A Vite entry is an ES module: on the front end and in wp-admin it is enqueued wi
 ## A file's URL
 
 ```php
-use Pollora\Asset\Infrastructure\Services\AssetFile;
+use Pollora\Asset\Application\Services\AssetFile;
 
 $logo = (string) (new AssetFile('images/logo.svg'))->from('theme');
 ```

@@ -8,7 +8,7 @@ use Pollora\Asset\Domain\Contracts\RuntimeContext;
 use Pollora\Asset\Domain\Contracts\ViteManagerFactory;
 use Pollora\Asset\Domain\Contracts\ViteManagerInterface;
 use Pollora\Asset\Domain\Exceptions\AssetException;
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
+use Pollora\Asset\Domain\Models\AssetContainer;
 use Pollora\Asset\Infrastructure\Services\AssetEnqueuer;
 use Pollora\Hook\Domain\Contract\Action as HookAction;
 use Pollora\Hook\Domain\Contract\Filter as HookFilter;

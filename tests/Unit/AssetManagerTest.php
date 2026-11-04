@@ -6,7 +6,7 @@ use Pollora\Asset\Application\Services\AssetManager;
 use Pollora\Asset\Application\Services\AssetRetrievalService;
 use Pollora\Asset\Domain\Contracts\PublicPath;
 use Pollora\Asset\Domain\Exceptions\AssetException;
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
+use Pollora\Asset\Domain\Models\AssetContainer;
 use Pollora\Asset\Infrastructure\Services\AssetEnqueuer;
 
 /** A public directory at a known place */

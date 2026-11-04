@@ -7,7 +7,7 @@ namespace Pollora\Asset\Infrastructure\WordPress;
 use Pollora\Asset\Application\Services\MissingBuilds;
 use Pollora\Asset\Domain\Contracts\ViteManagerFactory;
 use Pollora\Asset\Domain\Contracts\ViteManagerInterface;
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
+use Pollora\Asset\Domain\Models\AssetContainer;
 
 /**
  * Resolves a container from its own manifest and hot file.

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Pollora\Asset\Application\Services\MissingBuilds;
 use Pollora\Asset\Domain\Exceptions\AssetException;
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
+use Pollora\Asset\Domain\Models\AssetContainer;
 use Pollora\Asset\Infrastructure\WordPress\NativeViteManager;
 use Pollora\Asset\Infrastructure\WordPress\NativeViteManagerFactory;
 

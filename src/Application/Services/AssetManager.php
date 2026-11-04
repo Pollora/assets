@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Pollora\Asset\Application\Services;
 
 use Closure;
+use Pollora\Asset\Domain\Contracts\AssetEnqueuerInterface;
 use Pollora\Asset\Domain\Contracts\PublicPath;
 use Pollora\Asset\Domain\Exceptions\AssetException;
 use Pollora\Asset\Domain\Models\Asset;
-use Pollora\Asset\Infrastructure\Repositories\AssetContainer;
-use Pollora\Asset\Infrastructure\Services\AssetEnqueuer;
-use Pollora\Asset\Infrastructure\Services\AssetFile;
+use Pollora\Asset\Domain\Models\AssetContainer;
 
 /**
  * Application service for managing asset containers and asset file resolution.
@@ -37,7 +36,7 @@ class AssetManager
      *
      * @param  AssetRetrievalService  $retrievalService  Service for retrieving assets
      * @param  PublicPath|null  $publicPath  Where the hot file of a container without one lives
-     * @param  (Closure(): AssetEnqueuer)|null  $enqueuers  Builds the enqueuer of an asset
+     * @param  (Closure(): AssetEnqueuerInterface)|null  $enqueuers  Builds the enqueuer of an asset
      */
     public function __construct(
         private readonly AssetRetrievalService $retrievalService,
@@ -46,13 +45,13 @@ class AssetManager
     ) {}
 
     /**
-     * Factory method: returns an AssetEnqueuer (builder) for fluent asset management and enqueueing.
+     * Factory method: returns an asset enqueuer (builder) for fluent asset management and enqueueing.
      *
      * @param  string  $handle  Asset handle
      * @param  string  $file  Asset file path
-     * @return AssetEnqueuer Asset enqueuer instance
+     * @return AssetEnqueuerInterface Asset enqueuer instance
      */
-    public function add(string $handle, string $file): AssetEnqueuer
+    public function add(string $handle, string $file): AssetEnqueuerInterface
     {
         if (! $this->enqueuers instanceof Closure) {
             throw new AssetException('No asset enqueuer is set: the asset manager was built without one.');
@@ -142,7 +141,7 @@ class AssetManager
     }
 
     /**
-     * Infrastructure factory for asset file URL resolution (Vite, containers, etc.).
+     * Factory for asset file URL resolution (Vite, containers, etc.).
      *
      * @param  string  $file  Asset file path
      * @return AssetFile Asset file instance for URL resolution
