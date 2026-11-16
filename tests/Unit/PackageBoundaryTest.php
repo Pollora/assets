@@ -37,5 +37,6 @@ arch('assets uses only what it declares')
         'wp_localize_script',
         'wp_register_script',
         'wp_register_style',
+        'wp_script_add_data',
     ])
     ->ignoring(['WP_Post', 'WP_Scripts']);
