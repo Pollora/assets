@@ -11,7 +11,7 @@ use Pollora\Asset\Domain\Contracts\ViteManagerInterface;
  *
  * Use for testing or pure domain logic.
  */
-class ViteManager implements ViteManagerInterface
+final class ViteManager implements ViteManagerInterface
 {
     /**
      * Returns a stub asset container instance.

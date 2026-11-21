@@ -24,7 +24,7 @@ use Psr\Log\NullLogger;
  * WordPress enqueuing and Vite.js integration. It handles various asset loading scenarios
  * including dependencies, versioning, and conditional loading.
  */
-class AssetEnqueuer implements AssetEnqueuerInterface
+final class AssetEnqueuer implements AssetEnqueuerInterface
 {
     /**
      * Hooks on whose pages WordPress prints script modules, after its import map.
@@ -46,83 +46,83 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      *
      * @var string|array<string>
      */
-    protected string|array $path;
+    private string|array $path;
 
     /**
      * The type of asset ('css' or 'js').
      */
-    protected string $type;
+    private string $type;
 
     /**
      * Array of asset handles that this asset depends on.
      *
      * @var array<string>
      */
-    protected array $dependencies = [];
+    private array $dependencies = [];
 
     /**
      * The asset container instance.
      */
-    protected ?AssetContainer $container = null;
+    private ?AssetContainer $container = null;
 
     /**
      * The Vite manager instance.
      */
-    protected ?ViteManagerInterface $viteManager = null;
+    private ?ViteManagerInterface $viteManager = null;
 
     /**
      * Whether to use Vite.js for asset handling.
      */
-    protected bool $useVite = false;
+    private bool $useVite = false;
 
     /**
      * The version string for cache busting.
      */
-    protected ?string $version = null;
+    private ?string $version = null;
 
     /**
      * The media query for stylesheet (e.g., 'all', 'print', 'screen').
      */
-    protected string $media = 'all';
+    private string $media = 'all';
 
     /**
      * Whether to load the script in the footer.
      */
-    protected bool $loadInFooter = false;
+    private bool $loadInFooter = false;
 
     /**
      * The loading strategy for scripts (e.g., 'defer', 'async').
      */
-    protected ?string $loadStrategy = null;
+    private ?string $loadStrategy = null;
 
     /**
      * The content to be added inline with the asset.
      */
-    protected ?string $inlineContent = null;
+    private ?string $inlineContent = null;
 
     /**
      * The position for inline content ('before' or 'after').
      */
-    protected ?string $inlinePosition = null;
+    private ?string $inlinePosition = null;
 
     /**
      * Array of WordPress hooks where the asset should be enqueued.
      *
      * @var array<string>
      */
-    protected array $hooks = [];
+    private array $hooks = [];
 
     /**
      * The asset handle (unique identifier).
      */
-    protected string $handle;
+    private string $handle;
 
     /**
      * Stored localization data to apply after enqueuing.
      *
      * @var array<string, array>
      */
-    protected array $localizationData = [];
+    private array $localizationData = [];
 
     /**
      * @param  AssetManager  $assetManager  Resolves the containers by name
@@ -133,12 +133,12 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      * @param  LoggerInterface|null  $logger  Where a failure of the deferred enqueue is reported
      */
     public function __construct(
-        protected AssetManager $assetManager,
-        protected ?HookAction $action = null,
-        protected ?HookFilter $filter = null,
-        protected ?ViteManagerFactory $viteManagers = null,
-        protected ?RuntimeContext $runtime = null,
-        protected ?LoggerInterface $logger = null,
+        private readonly AssetManager $assetManager,
+        private readonly ?HookAction $action = null,
+        private readonly ?HookFilter $filter = null,
+        private readonly ?ViteManagerFactory $viteManagers = null,
+        private readonly ?RuntimeContext $runtime = null,
+        private readonly ?LoggerInterface $logger = null,
     ) {}
 
     /**
@@ -146,7 +146,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      *
      * @throws AssetException When the enqueuer was built without one
      */
-    protected function hookAction(): HookAction
+    private function hookAction(): HookAction
     {
         return $this->action ?? throw new AssetException('No hook service is set: the enqueuer was built without an Action.');
     }
@@ -156,7 +156,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      *
      * @throws AssetException When the enqueuer was built without one
      */
-    protected function hookFilter(): HookFilter
+    private function hookFilter(): HookFilter
     {
         return $this->filter ?? throw new AssetException('No filter service is set: the enqueuer was built without a Filter.');
     }
@@ -418,7 +418,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      * Adds a WordPress hook for asset enqueuing.
      *
      * @param  string  $hook  WordPress hook name\n     */
-    protected function addHook(string $hook): self
+    private function addHook(string $hook): self
     {
         $this->hooks[] = $hook;
 
@@ -430,7 +430,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      *
      * @param  string  $hook  WordPress hook to attach the client script
      */
-    protected function loadViteClient(string $hook): void
+    private function loadViteClient(string $hook): void
     {
         if ($this->printsScriptModules($hook)) {
             // The client is a module too: printed ahead of the import map, it would void it.
@@ -476,7 +476,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      *
      * @return bool True if Vite client should be loaded
      */
-    protected function needToLoadViteClient(): bool
+    private function needToLoadViteClient(): bool
     {
         return $this->useVite && $this->viteManager instanceof ViteManagerInterface && $this->viteManager->isRunningHot();
     }
@@ -486,7 +486,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      *
      * @return array Array of asset paths grouped by type
      */
-    protected function getAssetPaths(): array
+    private function getAssetPaths(): array
     {
         if ($this->useVite && ! $this->viteManager->isRunningHot()) {
 
@@ -504,7 +504,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      *
      * @throws \InvalidArgumentException When asset type is not supported
      */
-    protected function enqueueAsset(string $type, string $path, ?string $hook = null): void
+    private function enqueueAsset(string $type, string $path, ?string $hook = null): void
     {
         $handle = $this->useVite && ! $this->viteManager->isRunningHot() ? $this->handle.'/'.sanitize_title(basename($path)) : $this->handle;
         match ($type) {
@@ -521,7 +521,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      *
      * @param  string  $path  Path to the JavaScript file
      */
-    protected function enqueueScript(string $path, string $handle): void
+    private function enqueueScript(string $path, string $handle): void
     {
         wp_enqueue_script($handle, $path, $this->dependencies, $this->version, $this->loadInFooter);
 
@@ -545,7 +545,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Whether a Vite entry enqueued on this hook is printed by WordPress as a script module.
      */
-    protected function printsScriptModules(?string $hook): bool
+    private function printsScriptModules(?string $hook): bool
     {
         return in_array($hook, self::SCRIPT_MODULE_HOOKS, true) && function_exists('wp_enqueue_script_module');
     }
@@ -558,7 +558,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      * `{handle}-data`, printed in the head: it runs before the module, which the
      * browser defers.
      */
-    protected function enqueueScriptModule(string $path, string $handle): void
+    private function enqueueScriptModule(string $path, string $handle): void
     {
         // null, not false: false appends WordPress's version, and a module is identified by its
         // exact URL — a chunk importing the entry back would load a second copy of it.
@@ -594,7 +594,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      * @param  string  $path  Path to the CSS file
      * @param  string  $handle  Unique identifier for the stylesheet
      */
-    protected function enqueueStyle(string $path, string $handle): void
+    private function enqueueStyle(string $path, string $handle): void
     {
         wp_enqueue_style($handle, $path, $this->dependencies, $this->version, $this->media);
         if (! in_array($this->inlineContent, [null, '', '0'], true)) {
@@ -605,7 +605,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Adds module and crossorigin attributes to Vite script tags.
      */
-    protected function addViteScriptAttributes(string $handle): void
+    private function addViteScriptAttributes(string $handle): void
     {
         $this->hookFilter()->add('script_loader_tag', fn ($tag, $scriptHandle, $src) => $scriptHandle === $handle
             ? '<script type="module" crossorigin src="'.esc_url($src).'"></script>'
@@ -618,7 +618,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      * @param  string  $path  Asset path
      * @return string Full URL to the asset
      */
-    protected function forceFullUrl(string $path): string
+    private function forceFullUrl(string $path): string
     {
         if (str_contains($path, '://')) {
             return $path;
@@ -638,7 +638,7 @@ class AssetEnqueuer implements AssetEnqueuerInterface
      *
      * @throws \InvalidArgumentException When file type is not supported
      */
-    protected function determineFileType(string $path): string
+    private function determineFileType(string $path): string
     {
         $type = pathinfo($path, PATHINFO_EXTENSION);
 
