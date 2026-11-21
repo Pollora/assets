@@ -14,7 +14,7 @@ use Pollora\Asset\Domain\Models\Asset;
  * prototyping, or scenarios where persistence is not required. Assets are
  * stored in a simple associative array keyed by their name/handle.
  */
-class InMemoryAssetRepository implements AssetRepositoryInterface
+final class InMemoryAssetRepository implements AssetRepositoryInterface
 {
     /**
      * Internal array of assets, keyed by asset name/handle.

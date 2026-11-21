@@ -13,7 +13,7 @@ use Pollora\Asset\Domain\Models\Asset;
  * This service provides methods to register assets, retrieve a single asset by name,
  * and fetch all registered assets via the configured repository implementation.
  */
-class AssetContainerManager
+final class AssetContainerManager
 {
     /**
      * Initializes the container manager with a repository implementation.

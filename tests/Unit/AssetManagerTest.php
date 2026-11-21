@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Pollora\Asset\Application\Services\AssetManager;
 use Pollora\Asset\Application\Services\AssetRetrievalService;
+use Pollora\Asset\Domain\Contracts\AssetEnqueuerInterface;
 use Pollora\Asset\Domain\Contracts\PublicPath;
 use Pollora\Asset\Domain\Exceptions\AssetException;
 use Pollora\Asset\Domain\Models\AssetContainer;
-use Pollora\Asset\Infrastructure\Services\AssetEnqueuer;
 
 /** A public directory at a known place */
 function publicPathAt(string $root): PublicPath
@@ -72,11 +72,11 @@ describe('AssetManager containers', function (): void {
 
 describe('AssetManager::add()', function (): void {
     it('starts the enqueuer the environment builds, with the handle and the file', function (): void {
-        $enqueuer = Mockery::mock(AssetEnqueuer::class);
+        $enqueuer = Mockery::mock(AssetEnqueuerInterface::class);
         $enqueuer->shouldReceive('handle')->once()->with('theme/app')->andReturnSelf();
         $enqueuer->shouldReceive('path')->once()->with('app.js')->andReturnSelf();
 
-        $manager = new AssetManager(Mockery::mock(AssetRetrievalService::class), null, fn (): AssetEnqueuer => $enqueuer);
+        $manager = new AssetManager(Mockery::mock(AssetRetrievalService::class), null, fn (): AssetEnqueuerInterface => $enqueuer);
 
         expect($manager->add('theme/app', 'app.js'))->toBe($enqueuer);
     });

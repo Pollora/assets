@@ -14,7 +14,7 @@ use Pollora\Asset\Domain\Models\AssetFile as DomainAssetFile;
  * This class extends the domain AssetFile and implements the AssetFileInterface contract.
  * It resolves the public URL of an asset using the configured container and Vite integration.
  */
-class AssetFile extends DomainAssetFile implements AssetFileInterface
+final class AssetFile extends DomainAssetFile implements AssetFileInterface
 {
     /**
      * What turns a file and the name of its container into a URL, set by the environment.

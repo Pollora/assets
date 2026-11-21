@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `AssetFile` (application), `AssetRegistrationService`, `MissingBuilds`, `AssetException`, `ViteManager`, `AssetContainerManager`, `InMemoryAssetRepository` and `AssetEnqueuer` are now `final` (CONV-08). This is a restriction of the API for anyone who extended them: a class that is not an extension point can no longer be subclassed; compose them instead
 - `AssetContainer` moves from `Infrastructure\Repositories` to `Domain\Models` and `AssetFile` from `Infrastructure\Services` to `Application\Services`, so that the domain and application layers no longer depend on the infrastructure layer. Each former class name stays available as a deprecated alias, removed in the next major version
 - `AssetManager::add()` returns the new `AssetEnqueuerInterface` contract, which the `AssetEnqueuer` implements, instead of the concrete `AssetEnqueuer`. The fluent methods are the same
 - An unknown asset container, and `useVite()` called before a container is chosen, throw the named `AssetContainerNotFoundException` exception instead of a bare `\RuntimeException`. It extends `\RuntimeException` and the messages are unchanged

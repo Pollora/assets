@@ -13,7 +13,7 @@ use Pollora\Asset\Domain\Services\AssetContainerManager;
  * This service acts as a use case boundary for asset registration, ensuring
  * that assets are properly instantiated and delegated to the container manager.
  */
-class AssetRegistrationService
+final class AssetRegistrationService
 {
     /**
      * Initializes the registration service with the container manager.

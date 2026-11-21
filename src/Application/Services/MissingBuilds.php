@@ -16,7 +16,7 @@ use Psr\Log\NullLogger;
  * reachable: each missing build is logged once per request and listed in
  * wp-admin by `MissingBuildNotice`.
  */
-class MissingBuilds
+final class MissingBuilds
 {
     public function __construct(private readonly ?LoggerInterface $logger = null) {}
 
