@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Brain\Monkey\Functions;
 use Pollora\Asset\Application\Services\AssetFile;
 use Pollora\Asset\Application\Services\AssetManager;
-use Pollora\Asset\Application\Services\AssetRetrievalService;
 use Pollora\Asset\Application\Services\MissingBuilds;
 use Pollora\Asset\Asset;
 use Pollora\Asset\Domain\Contracts\ViteManagerFactory;
@@ -188,11 +187,10 @@ describe('the file resolver of the standalone assets', function (): void {
                 $this->records[] = [(string) $level, (string) $message, $context];
             }
         };
-        $this->assets = Mockery::mock(AssetManager::class);
+        $this->assets = new AssetManager(emptyRetrievalService());
     });
 
     it('is the empty string, and says nothing, for a container nobody registered', function (): void {
-        $this->assets->shouldReceive('getContainer')->with('ghost')->andReturn(null);
         $factory = Mockery::mock(ViteManagerFactory::class);
         $factory->shouldReceive('make')->never();
 
@@ -201,8 +199,8 @@ describe('the file resolver of the standalone assets', function (): void {
     });
 
     it('is what the resolver of the container says of the file', function (): void {
-        $container = new AssetContainer('theme');
-        $this->assets->shouldReceive('getContainer')->with('theme')->andReturn($container);
+        $this->assets->addContainer('theme', []);
+        $container = $this->assets->getContainer('theme');
         $vite = Mockery::mock(ViteManagerInterface::class);
         $vite->shouldReceive('asset')->with('logo.svg')->andReturn('https://site.test/logo.svg');
         $factory = Mockery::mock(ViteManagerFactory::class);
@@ -212,7 +210,7 @@ describe('the file resolver of the standalone assets', function (): void {
     });
 
     it('is the empty string and a line in the log when the resolver fails', function (): void {
-        $this->assets->shouldReceive('getContainer')->andReturn(new AssetContainer('theme'));
+        $this->assets->addContainer('theme', []);
         $vite = Mockery::mock(ViteManagerInterface::class);
         $vite->shouldReceive('asset')->andThrow(new AssetException('not in the manifest'));
         $factory = Mockery::mock(ViteManagerFactory::class);
@@ -223,15 +221,17 @@ describe('the file resolver of the standalone assets', function (): void {
     });
 
     it('is the empty string when the resolver fails and nobody listens', function (): void {
-        $this->assets->shouldReceive('getContainer')->andThrow(new RuntimeException('boom'));
+        $this->assets->addContainer('theme', []);
+        $factory = Mockery::mock(ViteManagerFactory::class);
+        $factory->shouldReceive('make')->andThrow(new RuntimeException('boom'));
 
-        expect((new StandaloneAssetFileResolver($this->assets, Mockery::mock(ViteManagerFactory::class)))('logo.svg', 'theme'))->toBe('');
+        expect((new StandaloneAssetFileResolver($this->assets, $factory))('logo.svg', 'theme'))->toBe('');
     });
 });
 
 describe('the default container of the manager', function (): void {
     beforeEach(function (): void {
-        $this->manager = new AssetManager(Mockery::mock(AssetRetrievalService::class));
+        $this->manager = new AssetManager(emptyRetrievalService());
         $this->manager->addContainer('', ['base_path' => 'empty']);
         $this->manager->addContainer('0', ['base_path' => 'zero']);
         $this->manager->addContainer('theme', ['base_path' => 'theme']);

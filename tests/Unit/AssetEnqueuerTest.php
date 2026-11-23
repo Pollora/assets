@@ -8,13 +8,12 @@ use Pollora\Asset\Domain\Contracts\RuntimeContext;
 use Pollora\Asset\Domain\Contracts\ViteManagerFactory;
 use Pollora\Asset\Domain\Contracts\ViteManagerInterface;
 use Pollora\Asset\Domain\Exceptions\AssetException;
-use Pollora\Asset\Domain\Models\AssetContainer;
 use Pollora\Asset\Infrastructure\Services\AssetEnqueuer;
 use Pollora\Hook\Domain\Contract\Action as HookAction;
 use Pollora\Hook\Domain\Contract\Filter as HookFilter;
 
 beforeEach(function (): void {
-    $this->assetManager = Mockery::mock(AssetManager::class);
+    $this->assetManager = new AssetManager(emptyRetrievalService());
 
     // Hook registration is mocked, so the deferred enqueue of a destroyed builder cannot fail
     $this->hookAction = Mockery::mock(HookAction::class);
@@ -248,8 +247,8 @@ describe('AssetEnqueuer', function (): void {
             // Not the command line: useVite() acts
             $this->commandLine = false;
 
-            $this->container = new AssetContainer('theme', ['hot_file' => '/tmp/none.hot', 'build_directory' => 'build/theme/x']);
-            $this->assetManager->shouldReceive('getContainer')->with('theme')->andReturn($this->container);
+            $this->assetManager->addContainer('theme', ['hot_file' => '/tmp/none.hot', 'build_directory' => 'build/theme/x']);
+            $this->container = $this->assetManager->getContainer('theme');
         });
 
         it('asks the factory for the resolver of the container it was given', function (): void {

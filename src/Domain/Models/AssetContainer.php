@@ -11,7 +11,7 @@ namespace Pollora\Asset\Domain\Models;
  * build directories, manifest files, and base asset paths. Used by infrastructure services
  * to resolve asset locations and integration with tools like Vite.
  */
-class AssetContainer
+final class AssetContainer
 {
     /**
      * Array of asset directory paths.
@@ -26,27 +26,27 @@ class AssetContainer
     /**
      * The path to the hot reload file used by Vite.
      */
-    protected string $hotFile;
+    private readonly string $hotFile;
 
     /**
      * The directory where built assets are stored.
      */
-    protected string $buildDirectory;
+    private readonly string $buildDirectory;
 
     /**
      * The path to the Vite manifest file.
      */
-    protected string $manifestPath;
+    private readonly string $manifestPath;
 
     /**
      * The directory `build_directory` is relative to, when it is the container's own and not one shared by all.
      */
-    protected ?string $publicPath;
+    private readonly ?string $publicPath;
 
     /**
      * The URL of that directory.
      */
-    protected ?string $publicUrl;
+    private readonly ?string $publicUrl;
 
     /**
      * Creates a new asset container instance.
@@ -54,7 +54,7 @@ class AssetContainer
      * @param  string  $name  The unique identifier for this container
      * @param  array  $config  Configuration options for the container
      */
-    public function __construct(protected string $name, protected array $config = [])
+    public function __construct(private readonly string $name, array $config = [])
     {
         $this->hotFile = $config['hot_file'] ?? $this->name.'.hot';
         $this->buildDirectory = $config['build_directory'] ?? 'build/'.$this->name;

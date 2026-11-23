@@ -13,14 +13,14 @@ use Pollora\Asset\Domain\Services\AssetContainerManager;
  * This service acts as a use case boundary for asset retrieval, providing methods
  * to fetch individual assets or all assets registered in the container manager.
  */
-class AssetRetrievalService
+final readonly class AssetRetrievalService
 {
     /**
      * Initializes the retrieval service with the container manager.
      *
      * @param  AssetContainerManager  $manager  The asset container manager
      */
-    public function __construct(private readonly AssetContainerManager $manager) {}
+    public function __construct(private AssetContainerManager $manager) {}
 
     /**
      * Retrieves a single asset by name.
