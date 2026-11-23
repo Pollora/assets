@@ -33,7 +33,7 @@ beforeEach(function (): void {
     Functions\when('sanitize_title')->alias(fn (string $title): string => strtolower(str_replace('.', '-', $title)));
     Functions\when('esc_url')->returnArg();
 
-    $this->assetManager = Mockery::mock(AssetManager::class);
+    $this->assetManager = new AssetManager(emptyRetrievalService());
 
     $this->hookAction = Mockery::mock(HookAction::class);
     $this->hookAction->shouldReceive('add')->andReturnUsing(function (...$arguments): HookAction {
@@ -86,8 +86,8 @@ beforeEach(function (): void {
 
 describe('the containers the enqueuer reads', function (): void {
     it('takes the container of the manager, without a runtime context', function (): void {
-        $container = new AssetContainer('theme');
-        $this->assetManager->shouldReceive('getContainer')->with('theme')->once()->andReturn($container);
+        $this->assetManager->addContainer('theme', []);
+        $container = $this->assetManager->getContainer('theme');
 
         $enqueuer = new AssetEnqueuer($this->assetManager, $this->hookAction, $this->hookFilter);
         $enqueuer->container('theme');
@@ -96,8 +96,6 @@ describe('the containers the enqueuer reads', function (): void {
     });
 
     it('names the container nobody registered', function (): void {
-        $this->assetManager->shouldReceive('getContainer')->with('ghost')->andReturn(null);
-
         expect(fn () => ($this->make)()->container('ghost'))
             ->toThrow(AssetContainerNotFoundException::class, "Asset container 'ghost' not found. Make sure you have added it via AssetManager::addContainer().");
     });
@@ -113,8 +111,8 @@ describe('the containers the enqueuer reads', function (): void {
     });
 
     it('resolves Vite for its container, without a runtime context', function (): void {
-        $container = new AssetContainer('theme');
-        $this->assetManager->shouldReceive('getContainer')->andReturn($container);
+        $this->assetManager->addContainer('theme', []);
+        $container = $this->assetManager->getContainer('theme');
         $factory = Mockery::mock(ViteManagerFactory::class);
         $factory->shouldReceive('make')->with($container)->once()->andReturn($this->viteManager);
 
@@ -125,7 +123,7 @@ describe('the containers the enqueuer reads', function (): void {
     });
 
     it('turns the flag of useVite() on before it asks for a resolver', function (): void {
-        $this->assetManager->shouldReceive('getContainer')->andReturn(new AssetContainer('theme'));
+        $this->assetManager->addContainer('theme', []);
         $enqueuer = ($this->make)()->container('theme');
 
         try {

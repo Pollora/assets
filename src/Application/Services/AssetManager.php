@@ -17,19 +17,19 @@ use Pollora\Asset\Domain\Models\AssetContainer;
  * This class provides methods to add, retrieve, and manage asset containers,
  * as well as to generate asset URLs through the infrastructure layer (Vite, manifest, etc).
  */
-class AssetManager
+final class AssetManager
 {
     /**
      * List of registered asset containers.
      *
      * @var array<string, AssetContainer>
      */
-    protected array $containers = [];
+    private array $containers = [];
 
     /**
      * The default asset container name.
      */
-    protected ?string $defaultContainer = null;
+    private ?string $defaultContainer = null;
 
     /**
      * Initializes the asset manager with the retrieval service.

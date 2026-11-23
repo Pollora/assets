@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use Brain\Monkey;
+use Pollora\Asset\Application\Services\AssetRetrievalService;
+use Pollora\Asset\Domain\Services\AssetContainerManager;
+use Pollora\Asset\Infrastructure\Repositories\InMemoryAssetRepository;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +26,13 @@ pest()->beforeEach(function (): void {
 
     Monkey\tearDown();
 })->in('Unit');
+
+/**
+ * A real retrieval service over an empty in-memory repository.
+ *
+ * The services are final, so a test builds them instead of mocking them.
+ */
+function emptyRetrievalService(): AssetRetrievalService
+{
+    return new AssetRetrievalService(new AssetContainerManager(new InMemoryAssetRepository));
+}

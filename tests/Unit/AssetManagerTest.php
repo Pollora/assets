@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Pollora\Asset\Application\Services\AssetManager;
-use Pollora\Asset\Application\Services\AssetRetrievalService;
 use Pollora\Asset\Domain\Contracts\AssetEnqueuerInterface;
 use Pollora\Asset\Domain\Contracts\PublicPath;
 use Pollora\Asset\Domain\Exceptions\AssetException;
@@ -25,7 +24,7 @@ function publicPathAt(string $root): PublicPath
 
 describe('AssetManager containers', function (): void {
     it('lists every container, keyed by name', function (): void {
-        $manager = new AssetManager(Mockery::mock(AssetRetrievalService::class));
+        $manager = new AssetManager(emptyRetrievalService());
         $manager->addContainer('theme', ['hot_file' => 'theme.hot']);
         $manager->addContainer('acme-plugin', []);
 
@@ -37,11 +36,11 @@ describe('AssetManager containers', function (): void {
     });
 
     it('lists nothing before a container is added', function (): void {
-        expect((new AssetManager(Mockery::mock(AssetRetrievalService::class)))->containers())->toBe([]);
+        expect((new AssetManager(emptyRetrievalService()))->containers())->toBe([]);
     });
 
     it('puts the hot file of a container that gives none in the public directory', function (): void {
-        $manager = new AssetManager(Mockery::mock(AssetRetrievalService::class), publicPathAt('/var/www/public'));
+        $manager = new AssetManager(emptyRetrievalService(), publicPathAt('/var/www/public'));
         $manager->addContainer('acme', []);
         $manager->addContainer('theme', ['hot_file' => '/elsewhere/theme.hot']);
 
@@ -50,14 +49,14 @@ describe('AssetManager containers', function (): void {
     });
 
     it('leaves the hot file as the container names it when it has no public directory to ask', function (): void {
-        $manager = new AssetManager(Mockery::mock(AssetRetrievalService::class));
+        $manager = new AssetManager(emptyRetrievalService());
         $manager->addContainer('acme', []);
 
         expect($manager->getContainer('acme')->getHotFile())->toBe('acme.hot');
     });
 
     it('keeps the default container apart from the others', function (): void {
-        $manager = new AssetManager(Mockery::mock(AssetRetrievalService::class));
+        $manager = new AssetManager(emptyRetrievalService());
         $manager->addContainer('root', ['hot_file' => 'hot']);
         $manager->addContainer('theme', ['hot_file' => 'theme.hot']);
 
@@ -76,13 +75,13 @@ describe('AssetManager::add()', function (): void {
         $enqueuer->shouldReceive('handle')->once()->with('theme/app')->andReturnSelf();
         $enqueuer->shouldReceive('path')->once()->with('app.js')->andReturnSelf();
 
-        $manager = new AssetManager(Mockery::mock(AssetRetrievalService::class), null, fn (): AssetEnqueuerInterface => $enqueuer);
+        $manager = new AssetManager(emptyRetrievalService(), null, fn (): AssetEnqueuerInterface => $enqueuer);
 
         expect($manager->add('theme/app', 'app.js'))->toBe($enqueuer);
     });
 
     it('says so when the manager was built without a way to make an enqueuer', function (): void {
-        $manager = new AssetManager(Mockery::mock(AssetRetrievalService::class));
+        $manager = new AssetManager(emptyRetrievalService());
 
         expect(fn () => $manager->add('theme/app', 'app.js'))->toThrow(AssetException::class, 'No asset enqueuer is set');
     });
