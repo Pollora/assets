@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-23
+
 ### Changed
 
 - `AssetFile` (application), `AssetRegistrationService`, `MissingBuilds`, `AssetException`, `ViteManager`, `AssetContainerManager`, `InMemoryAssetRepository` and `AssetEnqueuer` are now `final` (CONV-08). This is a restriction of the API for anyone who extended them: a class that is not an extension point can no longer be subclassed; compose them instead
