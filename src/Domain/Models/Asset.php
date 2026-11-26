@@ -17,7 +17,7 @@ class Asset
      *
      * @param  string  $name  The unique name or handle of the asset
      * @param  string  $path  The file path or URL to the asset
-     * @param  array  $attributes  Additional attributes (optional)
+     * @param  array<array-key, mixed>  $attributes  Additional attributes (optional)
      */
     public function __construct(private readonly string $name, private readonly string $path, private readonly array $attributes = []) {}
 
@@ -39,6 +39,8 @@ class Asset
 
     /**
      * Gets the asset's additional attributes.
+     *
+     * @return array<array-key, mixed>
      */
     public function getAttributes(): array
     {

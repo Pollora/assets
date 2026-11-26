@@ -42,9 +42,9 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     private const array SCRIPT_MODULE_HOOKS = ['wp_enqueue_scripts', 'admin_enqueue_scripts'];
 
     /**
-     * The asset path or array of paths.
+     * The asset path, or the built URLs by type once Vite resolved it.
      *
-     * @var string|array<string>
+     * @var string|array<string, list<string>>
      */
     private string|array $path;
 
@@ -56,7 +56,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Array of asset handles that this asset depends on.
      *
-     * @var array<string>
+     * @var list<non-empty-string>
      */
     private array $dependencies = [];
 
@@ -103,7 +103,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * The position for inline content ('before' or 'after').
      */
-    private ?string $inlinePosition = null;
+    private string $inlinePosition = 'after';
 
     /**
      * Array of WordPress hooks where the asset should be enqueued.
@@ -120,7 +120,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Stored localization data to apply after enqueuing.
      *
-     * @var array<string, array>
+     * @var array<string, array<string, mixed>>
      */
     private array $localizationData = [];
 
@@ -159,6 +159,16 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     private function hookFilter(): HookFilter
     {
         return $this->filter ?? throw new AssetException('No filter service is set: the enqueuer was built without a Filter.');
+    }
+
+    /**
+     * The Vite resolver useVite() built.
+     *
+     * @throws AssetException When it could not build one
+     */
+    private function viteManager(): ViteManagerInterface
+    {
+        return $this->viteManager ?? throw new AssetException('Vite manager not initialized. Call useVite() first.');
     }
 
     /**
@@ -211,7 +221,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Sets asset dependencies.
      *
-     * @param  array  $dependencies  Array of dependency handles\n     */
+     * @param  array<string>  $dependencies  Array of dependency handles\n     */
     public function dependencies(array $dependencies): self
     {
         // An empty string, left by a conditional list, is a dependency WordPress never finds: it would drop the asset
@@ -337,7 +347,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * Localizes a JavaScript file with data.
      *
      * @param  string  $objectName  JavaScript object name
-     * @param  array  $data  Data to localize\n     */
+     * @param  array<string, mixed>  $data  Data to localize\n     */
     public function localize(string $objectName, array $data): self
     {
         if ($this->type === 'js') {
@@ -467,9 +477,19 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
         }
 
         $asset = $this->viteManager->isRunningHot()
-            ? $this->viteManager->asset($this->path)
-            : $this->viteManager->getAssetUrls([$this->path]);
+            ? $this->viteManager->asset($this->sourcePath())
+            : $this->viteManager->getAssetUrls([$this->sourcePath()]);
         $this->path = $asset;
+    }
+
+    /**
+     * The path as declared, before Vite resolved it.
+     *
+     * @throws AssetException When the Vite URLs already replaced it
+     */
+    private function sourcePath(): string
+    {
+        return is_string($this->path) ? $this->path : throw new AssetException('The Vite paths are already configured.');
     }
 
     /**
@@ -485,16 +505,16 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Gets the processed asset paths based on Vite configuration.
      *
-     * @return array Array of asset paths grouped by type
+     * @return array<string, array<string>> Array of asset paths grouped by type
      */
     private function getAssetPaths(): array
     {
-        if ($this->useVite && ! $this->viteManager->isRunningHot()) {
+        if ($this->useVite && ! $this->viteManager()->isRunningHot()) {
 
-            return $this->path;
+            return is_array($this->path) ? $this->path : throw new AssetException('The Vite paths are not configured: call configureViteAssets() first.');
         }
 
-        return [$this->type => [$this->path]];
+        return [$this->type => [$this->sourcePath()]];
     }
 
     /**
@@ -507,7 +527,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      */
     private function enqueueAsset(string $type, string $path, ?string $hook = null): void
     {
-        $handle = $this->useVite && ! $this->viteManager->isRunningHot() ? $this->handle.'/'.sanitize_title(basename($path)) : $this->handle;
+        $handle = $this->useVite && ! $this->viteManager()->isRunningHot() ? $this->handle.'/'.sanitize_title(basename($path)) : $this->handle;
         if ($handle === '') {
             // WordPress keeps the first asset of a handle: every nameless one would share ''
             $handle = sanitize_title(basename($path)) ?: 'asset';
@@ -526,6 +546,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * Enqueues a JavaScript file with WordPress.
      *
      * @param  string  $path  Path to the JavaScript file
+     * @param  non-empty-string  $handle
      */
     private function enqueueScript(string $path, string $handle): void
     {
@@ -563,6 +584,8 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * script. What the asset declares of those goes on a classic companion script,
      * `{handle}-data`, printed in the head: it runs before the module, which the
      * browser defers.
+     *
+     * @param  non-empty-string  $handle
      */
     private function enqueueScriptModule(string $path, string $handle): void
     {
@@ -598,7 +621,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * Enqueues a CSS file with WordPress.
      *
      * @param  string  $path  Path to the CSS file
-     * @param  string  $handle  Unique identifier for the stylesheet
+     * @param  non-empty-string  $handle  Unique identifier for the stylesheet
      */
     private function enqueueStyle(string $path, string $handle): void
     {
@@ -614,7 +637,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     private function addViteScriptAttributes(string $handle): void
     {
         $this->hookFilter()->add('script_loader_tag', fn ($tag, $scriptHandle, $src) => $scriptHandle === $handle
-            ? '<script type="module" crossorigin src="'.esc_url($src).'"></script>'
+            ? '<script type="module" crossorigin src="'.esc_url(is_string($src) ? $src : '').'"></script>'
             : $tag, 10, 3);
     }
 

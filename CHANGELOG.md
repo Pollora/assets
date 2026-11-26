@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- PHPStan runs at level 10. A container option that is not text, and a Vite entry enqueued before its URLs were resolved, raise `AssetException` instead of a `TypeError` or an `Error`; a manifest entry whose file is not text is read as absent
+
 ### Fixed
 
 - An empty string in `dependencies()` is left out: WordPress never finds such a dependency and silently dropped the asset

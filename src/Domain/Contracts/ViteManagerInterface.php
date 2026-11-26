@@ -21,8 +21,8 @@ interface ViteManagerInterface
     /**
      * Gets the URLs for the specified entry points.
      *
-     * @param  array  $entrypoints  List of entry points to process
-     * @return array Array of asset URLs grouped by type (js/css)
+     * @param  array<int, string>  $entrypoints  List of entry points to process
+     * @return array<string, list<string>> Array of asset URLs grouped by type (js/css)
      */
     public function getAssetUrls(array $entrypoints): array;
 

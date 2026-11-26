@@ -76,7 +76,7 @@ final class AssetManager
     /**
      * Retrieves all registered assets.
      *
-     * @return array List of asset instances
+     * @return array<int, Asset> List of asset instances
      */
     public function all(): array
     {
@@ -87,7 +87,7 @@ final class AssetManager
      * Adds a new asset container.
      *
      * @param  string  $name  Name of the container
-     * @param  array  $config  Configuration for the container
+     * @param  array<string, mixed>  $config  Configuration for the container
      */
     public function addContainer(string $name, array $config): void
     {

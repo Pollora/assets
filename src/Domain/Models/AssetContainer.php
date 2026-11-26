@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Pollora\Asset\Domain\Models;
 
+use Pollora\Asset\Domain\Exceptions\AssetException;
+use Stringable;
+
 /**
  * Configuration and paths for a group of related assets.
  *
@@ -15,6 +18,8 @@ final class AssetContainer
 {
     /**
      * Array of asset directory paths.
+     *
+     * @var array<array-key, mixed>
      */
     public array $assetDir;
 
@@ -52,16 +57,39 @@ final class AssetContainer
      * Creates a new asset container instance.
      *
      * @param  string  $name  The unique identifier for this container
-     * @param  array  $config  Configuration options for the container
+     * @param  array<string, mixed>  $config  Configuration options for the container
      */
     public function __construct(private readonly string $name, array $config = [])
     {
-        $this->hotFile = $config['hot_file'] ?? $this->name.'.hot';
-        $this->buildDirectory = $config['build_directory'] ?? 'build/'.$this->name;
-        $this->manifestPath = $config['manifest_path'] ?? 'manifest.json';
-        $this->basePath = $config['base_path'] ?? '';
-        $this->publicPath = isset($config['public_path']) ? rtrim((string) $config['public_path'], '/') : null;
-        $this->publicUrl = isset($config['public_url']) ? rtrim((string) $config['public_url'], '/') : null;
+        $this->hotFile = $this->text($config, 'hot_file') ?? $this->name.'.hot';
+        $this->buildDirectory = $this->text($config, 'build_directory') ?? 'build/'.$this->name;
+        $this->manifestPath = $this->text($config, 'manifest_path') ?? 'manifest.json';
+        $this->basePath = $this->text($config, 'base_path') ?? '';
+
+        $publicPath = $this->text($config, 'public_path');
+        $publicUrl = $this->text($config, 'public_url');
+        $this->publicPath = $publicPath === null ? null : rtrim($publicPath, '/');
+        $this->publicUrl = $publicUrl === null ? null : rtrim($publicUrl, '/');
+    }
+
+    /**
+     * An option of the configuration, null when it is not given.
+     *
+     * @param  array<string, mixed>  $config
+     *
+     * @throws AssetException When the option is not text
+     */
+    private function text(array $config, string $option): ?string
+    {
+        $value = $config[$option] ?? null;
+
+        if ($value === null) {
+            return null;
+        }
+
+        return is_scalar($value) || $value instanceof Stringable
+            ? (string) $value
+            : throw new AssetException(sprintf("The option '%s' of the asset container '%s' must be a string.", $option, $this->name));
     }
 
     /**
@@ -125,6 +153,8 @@ final class AssetContainer
 
     /**
      * Gets the asset directory array.
+     *
+     * @return array<array-key, mixed>
      */
     public function getAssetDir(): array
     {
