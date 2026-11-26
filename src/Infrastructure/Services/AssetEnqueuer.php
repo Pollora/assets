@@ -56,7 +56,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Array of asset handles that this asset depends on.
      *
-     * @var array<string>
+     * @var list<non-empty-string>
      */
     private array $dependencies = [];
 
@@ -536,6 +536,8 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * Enqueues a JavaScript file with WordPress.
      *
      * @param  string  $path  Path to the JavaScript file
+     *
+     * @param  non-empty-string  $handle
      */
     private function enqueueScript(string $path, string $handle): void
     {
@@ -573,6 +575,8 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * script. What the asset declares of those goes on a classic companion script,
      * `{handle}-data`, printed in the head: it runs before the module, which the
      * browser defers.
+     *
+     * @param  non-empty-string  $handle
      */
     private function enqueueScriptModule(string $path, string $handle): void
     {
@@ -608,7 +612,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * Enqueues a CSS file with WordPress.
      *
      * @param  string  $path  Path to the CSS file
-     * @param  string  $handle  Unique identifier for the stylesheet
+     * @param  non-empty-string  $handle  Unique identifier for the stylesheet
      */
     private function enqueueStyle(string $path, string $handle): void
     {
