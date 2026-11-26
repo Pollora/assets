@@ -518,3 +518,16 @@ describe('a stylesheet', function (): void {
         expect($this->calls[0][1][4])->toBe('all');
     });
 });
+
+it('leaves out an empty dependency, which would keep WordPress from printing the asset', function (): void {
+    ($this->make)()->handle('app')->path('app.js')->dependencies(['jquery', ''])->enqueueStyleOrScript();
+
+    expect($this->calls[0][0])->toBe('wp_enqueue_script')
+        ->and($this->calls[0][1][2])->toBe(['jquery']);
+});
+
+it('names an asset declared with an empty handle after its file', function (): void {
+    ($this->make)()->handle('')->path('app.css')->enqueueStyleOrScript();
+
+    expect($this->calls[0][1][0])->toBe('app-css');
+});

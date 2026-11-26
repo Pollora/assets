@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- An empty string in `dependencies()` is left out: WordPress never finds such a dependency and silently dropped the asset
+- An asset declared with an empty handle is named after its file, instead of sharing the handle `''` with every other one
+
 ## [0.2.0] - 2026-11-23
 
 ### Changed
