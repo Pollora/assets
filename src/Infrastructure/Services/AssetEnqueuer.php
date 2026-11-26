@@ -214,7 +214,8 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * @param  array  $dependencies  Array of dependency handles\n     */
     public function dependencies(array $dependencies): self
     {
-        $this->dependencies = $dependencies;
+        // An empty string, left by a conditional list, is a dependency WordPress never finds: it would drop the asset
+        $this->dependencies = array_values(array_filter($dependencies, static fn (mixed $dependency): bool => $dependency !== ''));
 
         return $this;
     }
@@ -507,6 +508,11 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     private function enqueueAsset(string $type, string $path, ?string $hook = null): void
     {
         $handle = $this->useVite && ! $this->viteManager->isRunningHot() ? $this->handle.'/'.sanitize_title(basename($path)) : $this->handle;
+        if ($handle === '') {
+            // WordPress keeps the first asset of a handle: every nameless one would share ''
+            $handle = sanitize_title(basename($path)) ?: 'asset';
+        }
+
         match ($type) {
             'css' => $this->enqueueStyle($path, $handle),
             'js' => $this->useVite && $this->printsScriptModules($hook)
