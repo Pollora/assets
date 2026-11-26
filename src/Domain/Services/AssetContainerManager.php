@@ -46,7 +46,7 @@ final class AssetContainerManager
     /**
      * Retrieves all registered assets.
      *
-     * @return array List of all asset instances
+     * @return array<int, Asset> List of all asset instances
      */
     public function getAllAssets(): array
     {

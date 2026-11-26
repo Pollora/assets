@@ -33,7 +33,7 @@ interface AssetRepositoryInterface
     /**
      * Retrieves all assets from the repository.
      *
-     * @return array List of all asset instances
+     * @return array<int, Asset> List of all asset instances
      */
     public function all(): array;
 }

@@ -15,6 +15,8 @@ final class AssetContainer
 {
     /**
      * Array of asset directory paths.
+     *
+     * @var array<array-key, mixed>
      */
     public array $assetDir;
 
@@ -52,7 +54,7 @@ final class AssetContainer
      * Creates a new asset container instance.
      *
      * @param  string  $name  The unique identifier for this container
-     * @param  array  $config  Configuration options for the container
+     * @param  array<string, mixed>  $config  Configuration options for the container
      */
     public function __construct(private readonly string $name, array $config = [])
     {
@@ -125,6 +127,8 @@ final class AssetContainer
 
     /**
      * Gets the asset directory array.
+     *
+     * @return array<array-key, mixed>
      */
     public function getAssetDir(): array
     {

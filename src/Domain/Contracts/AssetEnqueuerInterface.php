@@ -32,7 +32,7 @@ interface AssetEnqueuerInterface
     /**
      * Sets asset dependencies.
      *
-     * @param  array  $dependencies  Array of dependency handles
+     * @param  array<string>  $dependencies  Array of dependency handles
      */
     public function dependencies(array $dependencies): self;
 

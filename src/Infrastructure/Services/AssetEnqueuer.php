@@ -42,9 +42,9 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     private const array SCRIPT_MODULE_HOOKS = ['wp_enqueue_scripts', 'admin_enqueue_scripts'];
 
     /**
-     * The asset path or array of paths.
+     * The asset path, or the built URLs by type once Vite resolved it.
      *
-     * @var string|array<string>
+     * @var string|array<string, list<string>>
      */
     private string|array $path;
 
@@ -120,7 +120,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Stored localization data to apply after enqueuing.
      *
-     * @var array<string, array>
+     * @var array<string, array<string, mixed>>
      */
     private array $localizationData = [];
 
@@ -211,7 +211,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Sets asset dependencies.
      *
-     * @param  array  $dependencies  Array of dependency handles\n     */
+     * @param  array<string>  $dependencies  Array of dependency handles\n     */
     public function dependencies(array $dependencies): self
     {
         // An empty string, left by a conditional list, is a dependency WordPress never finds: it would drop the asset
@@ -337,7 +337,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * Localizes a JavaScript file with data.
      *
      * @param  string  $objectName  JavaScript object name
-     * @param  array  $data  Data to localize\n     */
+     * @param  array<string, mixed>  $data  Data to localize\n     */
     public function localize(string $objectName, array $data): self
     {
         if ($this->type === 'js') {
@@ -467,9 +467,19 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
         }
 
         $asset = $this->viteManager->isRunningHot()
-            ? $this->viteManager->asset($this->path)
-            : $this->viteManager->getAssetUrls([$this->path]);
+            ? $this->viteManager->asset($this->sourcePath())
+            : $this->viteManager->getAssetUrls([$this->sourcePath()]);
         $this->path = $asset;
+    }
+
+    /**
+     * The path as declared, before Vite resolved it.
+     *
+     * @throws AssetException When the Vite URLs already replaced it
+     */
+    private function sourcePath(): string
+    {
+        return is_string($this->path) ? $this->path : throw new AssetException('The Vite paths are already configured.');
     }
 
     /**
@@ -485,16 +495,16 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * Gets the processed asset paths based on Vite configuration.
      *
-     * @return array Array of asset paths grouped by type
+     * @return array<string, array<string>> Array of asset paths grouped by type
      */
     private function getAssetPaths(): array
     {
         if ($this->useVite && ! $this->viteManager->isRunningHot()) {
 
-            return $this->path;
+            return is_array($this->path) ? $this->path : throw new AssetException('The Vite paths are not configured: call configureViteAssets() first.');
         }
 
-        return [$this->type => [$this->path]];
+        return [$this->type => [$this->sourcePath()]];
     }
 
     /**

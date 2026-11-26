@@ -27,7 +27,7 @@ final class AssetRegistrationService
      *
      * @param  string  $name  The asset name/handle
      * @param  string  $path  The asset file path
-     * @param  array  $attributes  Optional attributes (e.g., dependencies, type)
+     * @param  array<array-key, mixed>  $attributes  Optional attributes (e.g., dependencies, type)
      */
     public function register(string $name, string $path, array $attributes = [], string $assetClass = Asset::class): void
     {

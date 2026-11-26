@@ -23,6 +23,9 @@ final class ViteManager implements ViteManagerInterface
 
     /**
      * Returns an empty array for entry point URLs (stub).
+     *
+     * @param  array<int, string>  $entrypoints
+     * @return array<string, list<string>>
      */
     public function getAssetUrls(array $entrypoints): array
     {
