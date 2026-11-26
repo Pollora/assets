@@ -546,7 +546,6 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      * Enqueues a JavaScript file with WordPress.
      *
      * @param  string  $path  Path to the JavaScript file
-     *
      * @param  non-empty-string  $handle
      */
     private function enqueueScript(string $path, string $handle): void
