@@ -25,7 +25,7 @@ use Pollora\Asset\Domain\Models\AssetContainer;
 final class NativeViteManager implements ViteManagerInterface
 {
     /**
-     * @var array<string, mixed>|null
+     * @var array<array-key, mixed>|null
      */
     private ?array $manifest = null;
 
@@ -185,7 +185,7 @@ final class NativeViteManager implements ViteManagerInterface
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     private function manifest(): array
     {

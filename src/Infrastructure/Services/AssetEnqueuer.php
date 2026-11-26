@@ -638,7 +638,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     private function addViteScriptAttributes(string $handle): void
     {
         $this->hookFilter()->add('script_loader_tag', fn ($tag, $scriptHandle, $src) => $scriptHandle === $handle
-            ? '<script type="module" crossorigin src="'.esc_url($src).'"></script>'
+            ? '<script type="module" crossorigin src="'.esc_url(is_string($src) ? $src : '').'"></script>'
             : $tag, 10, 3);
     }
 
