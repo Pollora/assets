@@ -97,7 +97,7 @@ final class Asset
             new AssetRetrievalService(new AssetContainerManager(new InMemoryAssetRepository)),
             null,
             static function () use (&$manager, $action, $filter, $viteManagers, $runtime): AssetEnqueuer {
-                return new AssetEnqueuer($manager, $action, $filter, $viteManagers, $runtime, self::$logger);
+                return new AssetEnqueuer($manager ?? self::manager(), $action, $filter, $viteManagers, $runtime, self::$logger);
             },
         );
 

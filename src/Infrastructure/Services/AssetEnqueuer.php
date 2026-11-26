@@ -103,7 +103,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     /**
      * The position for inline content ('before' or 'after').
      */
-    private ?string $inlinePosition = null;
+    private string $inlinePosition = 'after';
 
     /**
      * Array of WordPress hooks where the asset should be enqueued.
@@ -159,6 +159,16 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
     private function hookFilter(): HookFilter
     {
         return $this->filter ?? throw new AssetException('No filter service is set: the enqueuer was built without a Filter.');
+    }
+
+    /**
+     * The Vite resolver useVite() built.
+     *
+     * @throws AssetException When it could not build one
+     */
+    private function viteManager(): ViteManagerInterface
+    {
+        return $this->viteManager ?? throw new AssetException('Vite manager not initialized. Call useVite() first.');
     }
 
     /**
@@ -499,7 +509,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      */
     private function getAssetPaths(): array
     {
-        if ($this->useVite && ! $this->viteManager->isRunningHot()) {
+        if ($this->useVite && ! $this->viteManager()->isRunningHot()) {
 
             return is_array($this->path) ? $this->path : throw new AssetException('The Vite paths are not configured: call configureViteAssets() first.');
         }
@@ -517,7 +527,7 @@ final class AssetEnqueuer implements AssetEnqueuerInterface
      */
     private function enqueueAsset(string $type, string $path, ?string $hook = null): void
     {
-        $handle = $this->useVite && ! $this->viteManager->isRunningHot() ? $this->handle.'/'.sanitize_title(basename($path)) : $this->handle;
+        $handle = $this->useVite && ! $this->viteManager()->isRunningHot() ? $this->handle.'/'.sanitize_title(basename($path)) : $this->handle;
         if ($handle === '') {
             // WordPress keeps the first asset of a handle: every nameless one would share ''
             $handle = sanitize_title(basename($path)) ?: 'asset';
