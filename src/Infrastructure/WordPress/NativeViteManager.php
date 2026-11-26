@@ -72,14 +72,15 @@ final class NativeViteManager implements ViteManagerInterface
         foreach ($entrypoints as $entrypoint) {
             $chunk = $manifest[$this->container->getBasePath().ltrim($entrypoint, '/')] ?? null;
 
-            if (! is_array($chunk) || ! isset($chunk['file'])) {
+            $file = $this->chunkFile($chunk);
+
+            if ($file === null) {
                 continue;
             }
 
-            $file = (string) $chunk['file'];
             $assets[pathinfo($file, PATHINFO_EXTENSION) === 'css' ? 'css' : 'js'][] = $this->builtUrl($file);
 
-            foreach ((array) ($chunk['css'] ?? []) as $css) {
+            foreach (array_filter((array) (is_array($chunk) ? ($chunk['css'] ?? []) : []), is_scalar(...)) as $css) {
                 $assets['css'][] = $this->builtUrl((string) $css);
             }
         }
@@ -109,13 +110,13 @@ final class NativeViteManager implements ViteManagerInterface
             return $this->hotAsset($file);
         }
 
-        $chunk = $this->manifest()[$file] ?? null;
+        $built = $this->chunkFile($this->manifest()[$file] ?? null);
 
-        if (! is_array($chunk) || ! isset($chunk['file'])) {
+        if ($built === null) {
             throw new AssetException(sprintf('Unable to locate file in Vite manifest: %s.', $file));
         }
 
-        return $this->builtUrl((string) $chunk['file']);
+        return $this->builtUrl($built);
     }
 
     /**
@@ -153,6 +154,14 @@ final class NativeViteManager implements ViteManagerInterface
     public function getViteClientHtml(): string
     {
         return $this->isRunningHot() ? sprintf('<script type="module" src="%s"></script>', $this->clientUrl()) : '';
+    }
+
+    /**
+     * The built file a chunk of the manifest names, if it names one.
+     */
+    private function chunkFile(mixed $chunk): ?string
+    {
+        return is_array($chunk) && isset($chunk['file']) && is_scalar($chunk['file']) ? (string) $chunk['file'] : null;
     }
 
     private function hotAsset(string $file): string
