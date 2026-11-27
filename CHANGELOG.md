@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Development only: `antecedent/patchwork` is required at commit `d588654` of its `master` branch (antecedent/patchwork#235), aliased as 2.2.6, so that Pest mutants are no longer counted as caught when tests hang. This pin is temporary until the next Patchwork release
 - An empty string in `dependencies()` is left out: WordPress never finds such a dependency and silently dropped the asset
 - An asset declared with an empty handle is named after its file, instead of sharing the handle `''` with every other one
 
